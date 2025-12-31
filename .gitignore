@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.python-version
+
+# Environments
+venv/
+env/
+.env
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Test / coverage
+htmlcov/
+.coverage
+.pytest_cache/
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Experiment artifacts (do NOT commit large experiment data or checkpoints)
+experiments/
+**/checkpoints/
+**/logs/
+**/results/
+**/*.pth
+**/*.pt
+**/*.ckpt
+
+# Misc
+*.log
+*.sqlite

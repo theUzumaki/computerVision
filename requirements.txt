@@ -1,0 +1,8 @@
+# Minimal requirements for development and running the template
+PyYAML>=6.0
+numpy>=1.24
+matplotlib>=3.6
+tqdm>=4.65
+# Optional / common deep learning libs (uncomment if used)
+# torch>=1.13
+# torchvision>=0.14
