@@ -2,26 +2,56 @@
 
 
 class ValidationAPI:
-    """
-    Interface for validation and visualization operations.
-
-    Config mapping (keys in `configs/default_config.yaml`):
-      - `validation.metrics` -> compute_metrics(..., metrics=[...])
-      - `validation.visualization.save_plots` -> plot_results(..., save when True)
-      - `validation.visualization.output_dir` -> default save_path for plot_results
-      - `validation.reports.output_dir` -> used by reporting utilities (external or implemented here)
-
-    Implementations should accept config via kwargs or a config dict.
+    """Base interface for model validation and visualization.
+    
+    Implement these methods to provide metrics computation, evaluation, and plotting.
     """
     
     def compute_metrics(self, predictions, targets, metrics: list) -> dict:
-        """Compute specified metrics. Returns dict of metric_name -> value."""
+        """Compute evaluation metrics.
+        
+        Args:
+            predictions: Model predictions
+            targets: Ground truth labels
+            metrics: List of metric names to compute (e.g., ['accuracy', 'f1'])
+            
+        Returns:
+            Dict mapping metric names to values
+        """
         raise NotImplementedError
     
     def evaluate(self, model, test_data, **kwargs) -> dict:
-        """Evaluate a model on test data."""
+        """Evaluate model on test data.
+        
+        Args:
+            model: Trained model
+            test_data: Test dataset
+            **kwargs: Additional evaluation parameters
+            
+        Returns:
+            Evaluation results dict
+        """
         raise NotImplementedError
     
     def plot_results(self, results: dict, plot_type: str, save_path: str = None) -> None:
-        """Generate visualization plots."""
+        """Generate visualization from results.
+        
+        Args:
+            results: Evaluation results dict
+            plot_type: Type of plot (e.g., 'confusion_matrix', 'roc_curve')
+            save_path: Path to save plot (optional)
+        """
+        raise NotImplementedError
+
+    def plot_from_history(self, history, plot_types: list, save_path: str = None) -> dict:
+        """Generate plots from training history.
+        
+        Args:
+            history: History dict or path to history.json/csv
+            plot_types: List of plot types (e.g., ['loss', 'accuracy', 'lr'])
+            save_path: Directory to save plots (optional)
+            
+        Returns:
+            Dict mapping plot_type to saved file path
+        """
         raise NotImplementedError

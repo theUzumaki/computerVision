@@ -1,57 +1,57 @@
-# Default Configuration File
-# This file contains default settings for all project layers
-#
-# Mapping: see API interfaces for which config keys map to which methods.
-#
-# Loader helper: use `configs.loader.load_config()` to load this YAML and
-# `configs.loader.Config` to access common keys (see `configs/loader.py`).
-#
-# Examples:
-#  - `data.raw_dir` -> DataLoader.load(data_path=raw_dir)
-#  - `cv_enhancement.preprocessing.resize` -> CVEnhancementAPI.preprocess(..., resize=(W,H))
-#  - `nn_training.training.epochs` -> NNTrainingAPI.train(..., epochs=...)
-#  - `validation.metrics` -> ValidationAPI.compute_metrics(..., metrics=[...])
+# Default Configuration
+# 
+# Access in code:
+#   from configs.loader import load_config, Config
+#   cfg = Config(load_config())
 
-# Data Configuration
+# Data paths
 data:
-  raw_dir: "data/raw"          # -> DataLoader.load(data_path=raw_dir)
-  processed_dir: "data/processed"  # -> DataLoader.load(processed_dir) or CVEnhancement output
-  augmented_dir: "data/augmented"  # -> augmentation outputs (CVEnhancementAPI.augment)
-  splits_dir: "data/splits"    # -> DataLoader.split reads/writes train/val/test splits
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  augmented_dir: "data/augmented"
+  splits_dir: "data/splits"
 
-# CV Enhancement Configuration
+# CV Enhancement
 cv_enhancement:
   preprocessing:
-    resize: [224, 224]          # -> CVEnhancementAPI.preprocess(..., resize=(W,H))
-    normalize: true             # -> CVEnhancementAPI.preprocess(..., normalize=True)
+    resize: [224, 224]
+    normalize: true
   augmentation:
-    enabled: true               # -> CVEnhancementAPI.augment(..., enabled=True)
-  filters: []                  # -> list of filter names used by CVEnhancementAPI.apply_filter
+    enabled: true
+  filters: []
 
-# Neural Network Training Configuration
+# Training
 nn_training:
   model:
-    name: null                  # -> NNTrainingAPI.create_model(config) may use `name` to pick architecture
+    name: null
   training:
-    epochs: 100                 # -> NNTrainingAPI.train(..., epochs=100)
-    batch_size: 32              # -> NNTrainingAPI.train(..., batch_size=32)
-    learning_rate: 0.001        # -> NNTrainingAPI.train(..., learning_rate=0.001)
-    device: "cpu"               # -> CLI `--device` or `nn_training.training.device`
-    seed: null                  # -> CLI `--seed` or `nn_training.training.seed`
+    epochs: 100
+    batch_size: 32
+    learning_rate: 0.001
+    device: "cpu"
+    seed: null
   checkpoints:
-    dir: "experiments/checkpoints"  # -> default path for NNTrainingAPI.save_checkpoint
-    save_frequency: 10          # -> CLI `--save-every` or `nn_training.checkpoints.save_frequency`
+    dir: "experiments/checkpoints"
+    save_frequency: 10
 
-# Validation Configuration
+# Validation
 validation:
-  metrics: ["accuracy", "precision", "recall", "f1"]  # -> ValidationAPI.compute_metrics(..., metrics=[...])
+  metrics: ["accuracy", "precision", "recall", "f1"]
   visualization:
-    save_plots: true           # -> ValidationAPI.plot_results(..., save when True)
-    output_dir: "experiments/results"  # -> ValidationAPI.plot_results(..., save_path=output_dir)
+    save_plots: true
+    output_dir: "experiments/results"
   reports:
-    output_dir: "validation/reports"  # -> used by report generation (optional)
+    output_dir: "validation/reports"
 
-# Experiment Tracking
+# Experiments
 experiments:
-  logs_dir: "experiments/logs"  # -> training logs path
-  results_dir: "experiments/results"  # -> overall results output
+  logs_dir: "experiments/logs"
+  results_dir: "experiments/results"
+
+# Pipeline
+pipeline:
+  dataloader: null
+  cv_enhancer: null
+  trainer: null
+  validator: null
+  steps: ["prepare", "train", "evaluate"]
