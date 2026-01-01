@@ -18,6 +18,8 @@ from configs.loader import load_config, Config
 from nn_training.train import setup_experiment
 
 
+# --- Helpers ---------------------------------------------------------------
+
 def import_from_string(path: str):
     """Import class from dotted path."""
     if not path:
@@ -30,6 +32,10 @@ def import_from_string(path: str):
         symbol = parts[-1]
     module = importlib.import_module(module_path)
     return getattr(module, symbol)
+
+
+# --- Pipeline --------------------------------------------------------------
+
 
 def run_pipeline(args: argparse.Namespace) -> int:
     """Run full pipeline: prepare -> train -> evaluate."""

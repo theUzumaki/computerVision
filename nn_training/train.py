@@ -1,16 +1,66 @@
 """Training orchestrator - creates reproducible experiment runs.
 
-Implement your Trainer and DataLoader classes, then run:
-    python -m nn_training.train --trainer pkg.Trainer --dataloader pkg.DataLoader --exp-name myrun
+Implement training logic in your `Trainer` and `DataLoader`.
 
-Expected interfaces:
-    Trainer:
-        - create_model(model_cfg: dict) -> model
-        - train(model, train_data, val_data, **kwargs) -> history_dict
+Expected minimal interfaces (convention, not enforced):
+"""
+
+class Trainer:
+    def create_model(self, model_cfg: dict) -> Any:
+        """Return a model (any object) configured using model_cfg.
+
+        Config mapping:
+          - `nn_training.model.name` or other `nn_training.model.*` keys -> used to select architecture / model args
+        """
+        raise NotImplementedError
+
+    def train(self, model, train_data, val_data=None, *, epochs=10, batch_size=32, learning_rate=1e-3, checkpoint_dir=None, save_frequency=10, device: str = "cpu", resume: Optional[str] = None, seed: Optional[int] = None) -> Dict[str, Any]:
+        """Run training and save checkpoints to `checkpoint_dir`.
+
+        Default values and config mappings (where runner will pull defaults):
+          - epochs -> `nn_training.training.epochs`
+          - batch_size -> `nn_training.training.batch_size`
+          - learning_rate -> `nn_training.training.learning_rate`
+          - checkpoint_dir -> `nn_training.checkpoints.dir`
+          - save_frequency -> `nn_training.checkpoints.save_frequency`
+          - device -> `nn_training.training.device` (optional)
+          - seed -> `nn_training.training.seed` (optional)
+          - resume -> CLI `--resume` or explicit path
+
+        The method should save periodic checkpoints and update a history dict with
+        lists for time-series metrics and keys `best_checkpoint` and `best_metric`.
+
+        Expected history schema (returned dict or saved to `results/history.json`):
+          - `epochs` (optional): [1, 2, ...] (if missing, epoch indices are implied by list positions)
+          - `train_loss`, `val_loss`: lists of floats per epoch
+          - `train_acc`, `val_acc`: lists of floats per epoch (optional)
+          - `lr`: list of learning-rate values per epoch (optional)
+          - `best_checkpoint`: string path to best checkpoint file (optional, recommended)
+          - `best_metric`: float value of the metric used to select the best checkpoint (optional)
+
+        The runner expects epoch-aligned lists so `results/history.csv` will be a clean table.
+
+        Return a history dict following the schema above (example: {
+            "epochs": [1,2,3], "train_loss": [...], "val_loss": [...],
+            "best_checkpoint": "experiments/.../checkpoints/best_checkpoint.pth",
+            "best_metric": 0.87
+        }).
+        """
+        raise NotImplementedError
+
+class DataLoader:
+    def load(self, path: str) -> Any:
+        """Load data from the given path and return it."""
+        raise NotImplementedError
     
-    DataLoader:
-        - load(path: str) -> dataset
-        - split(data) -> (train, val, test)
+    def split(self, data) -> (train, val, test):
+        """Split data into train, validation, and test sets."""
+        raise NotImplementedError
+
+"""
+Usage example (from command line):
+    python -m nn_training.train --trainer mypkg.Trainer --dataloader mypkg.DataLoader --exp-name quicktest
+
 """
 from __future__ import annotations
 
@@ -26,6 +76,10 @@ from typing import Any, Dict, Optional
 
 from configs.loader import load_config, Config
 
+import torch
+
+
+# --- Helpers ---------------------------------------------------------------
 
 def import_from_string(path: str):
     """Import class from dotted path (pkg.module.Class or pkg.module:Class)."""
@@ -89,6 +143,10 @@ def setup_experiment(cfg: Config, exp_name: Optional[str], seed: Optional[int] =
         "results_dir": results_dir,
         "metadata": metadata,
     }
+
+
+# --- History writers ------------------------------------------------------
+
 
 def write_history_json(results_dir: Path, history: Dict[str, Any]) -> None:
     save_json(results_dir / "history.json", history)

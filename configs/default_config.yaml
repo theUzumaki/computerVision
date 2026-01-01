@@ -14,44 +14,44 @@ data:
 # CV Enhancement
 cv_enhancement:
   preprocessing:
-    resize: [224, 224]
-    normalize: true
+    resize: [224, 224]          # -> CVEnhancementAPI.preprocess(..., resize=(W,H))
+    normalize: true             # -> CVEnhancementAPI.preprocess(..., normalize=True)
   augmentation:
-    enabled: true
-  filters: []
+    enabled: true               # -> CVEnhancementAPI.augment(..., enabled=True)
+  filters: []                  # -> list of filter names used by CVEnhancementAPI.apply_filter
 
 # Training
 nn_training:
   model:
-    name: null
+    name: null                  # -> NNTrainingAPI.create_model(config) may use `name` to pick architecture
   training:
-    epochs: 100
-    batch_size: 32
-    learning_rate: 0.001
-    device: "cpu"
-    seed: null
+    epochs: 100                 # -> NNTrainingAPI.train(..., epochs=100)
+    batch_size: 32              # -> NNTrainingAPI.train(..., batch_size=32)
+    learning_rate: 0.001        # -> NNTrainingAPI.train(..., learning_rate=0.001)
+    device: "cpu"               # -> CLI `--device` or `nn_training.training.device`
+    seed: null                  # -> CLI `--seed` or `nn_training.training.seed`
   checkpoints:
-    dir: "experiments/checkpoints"
-    save_frequency: 10
+    dir: "experiments/checkpoints"  # -> default path for NNTrainingAPI.save_checkpoint
+    save_frequency: 10          # -> CLI `--save-every` or `nn_training.checkpoints.save_frequency`
 
 # Validation
 validation:
-  metrics: ["accuracy", "precision", "recall", "f1"]
+  metrics: ["accuracy", "precision", "recall", "f1"]  # -> ValidationAPI.compute_metrics(..., metrics=[...])
   visualization:
-    save_plots: true
-    output_dir: "experiments/results"
+    save_plots: true           # -> ValidationAPI.plot_results(..., save when True)
+    output_dir: "experiments/results"  # -> ValidationAPI.plot_results(..., save_path=output_dir)
   reports:
-    output_dir: "validation/reports"
+    output_dir: "validation/reports"  # -> used by report generation (optional)
 
 # Experiments
 experiments:
-  logs_dir: "experiments/logs"
-  results_dir: "experiments/results"
+  logs_dir: "experiments/logs"  # -> training logs path
+  results_dir: "experiments/results"  # -> overall results output
 
 # Pipeline
 pipeline:
-  dataloader: null
-  cv_enhancer: null
-  trainer: null
-  validator: null
-  steps: ["prepare", "train", "evaluate"]
+  dataloader: null            # dotted path to DataLoader (e.g. mypkg.data.MyLoader)
+  cv_enhancer: null           # dotted path to CVEnhancer (e.g. mypkg.cv.CVEnhancer)
+  trainer: null               # dotted path to Trainer (e.g. mypkg.trainers.MyTrainer)
+  validator: null             # dotted path to Validator (e.g. mypkg.validation.MyValidator)
+  steps: ["prepare", "train", "evaluate"]  # which steps to run by default
