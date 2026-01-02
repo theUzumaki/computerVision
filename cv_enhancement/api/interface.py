@@ -68,29 +68,16 @@ class CVEnhancementAPI:
         raise TypeError("Unsupported data type for preprocess; expected DataFrame or list of dicts with 'file_path'")
     
     def augment(self, data: Any, **kwargs) -> Any:
-        """Apply dataset-level data augmentation (minimal, non-destructive).
+        """Apply dataset-level data augmentation.
 
-        This basic implementation ensures every row has an `image` field by
-        loading the file if necessary and returns the dataset unchanged.
-        Subclasses can override to return additional augmented rows.
+        Args:
+            image: Input image as numpy array
+            **kwargs: Augmentation config (e.g., enabled=True, rotation=15)
+            
+        Returns:
+            List of augmented images
         """
-        if pd is not None and hasattr(data, "iterrows"):
-            df = data.copy()
-            for idx, row in df.iterrows():
-                if "image" not in row or row["image"] is None:
-                    df.at[idx, "image"] = imread(row["file_path"])
-            return df
-
-        if isinstance(data, list):
-            out = []
-            for row in data:
-                new_row = dict(row)
-                if "image" not in new_row or new_row["image"] is None:
-                    new_row["image"] = imread(new_row["file_path"])
-                out.append(new_row)
-            return out
-
-        raise TypeError("Unsupported data type for augment; expected DataFrame or list of dicts with 'file_path'")
+        raise NotImplementedError
     
     def apply_filter(self, data: Any, filter_name: Optional[str] = None, **kwargs) -> Any:
         """Apply filters at dataset level.
