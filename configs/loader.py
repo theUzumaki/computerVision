@@ -42,12 +42,9 @@ class Config:
 
     def get_cv_augmentation_enabled(self) -> bool:
         return self._cfg.get("cv_enhancement", {}).get("augmentation", {}).get("enabled", False)
-
+    
     def get_cv_filtering_enabled(self) -> bool:
         return self._cfg.get("cv_enhancement", {}).get("filtering", {}).get("enabled", False)
-
-    def get_cv_filtering(self) -> Dict[str, Any]:
-        return self._cfg.get("cv_enhancement", {}).get("filtering", {})
 
     def get_training_params(self) -> Dict[str, Any]:
         return self._cfg.get("nn_training", {}).get("training", {})
