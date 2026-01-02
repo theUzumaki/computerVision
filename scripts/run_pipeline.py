@@ -76,8 +76,19 @@ def run_pipeline(args: argparse.Namespace) -> int:
                 data_obj = cv_enhancer.preprocess(data_obj, **prep_cfg)
 
             if cfg.get_cv_augmentation_enabled():
-                print("Augmenting...")
-                data_obj = cv_enhancer.augment(data_obj)
+                try:
+                    print("Augmenting...")
+                    data_obj = cv_enhancer.augment(data_obj)
+                except NotImplementedError:
+                    print("Augment not implemented; continuing.")
+
+            if cfg.get_cv_filtering_enabled():
+                try:
+                    print("Filtering...")
+                    filter_cfg = cfg.get_cv_filtering()
+                    data_obj = cv_enhancer.apply_filter(data_obj, **filter_cfg)
+                except NotImplementedError:
+                    print("Filtering not implemented; continuing.")
         
         print("Prepare complete.")
 
@@ -123,18 +134,22 @@ def run_pipeline(args: argparse.Namespace) -> int:
     # Evaluate step
     if "evaluate" in steps and validator:
         print("Evaluating...")
-        try:
-            eval_results = validator.evaluate(model, data_obj)
-            (exp["results_dir"] / "final_evaluation.json").write_text(str(eval_results))
-            
+        if "model" not in locals():
+            print("No model available for evaluation; skip or provide a pre-trained model.")
+        else:
             try:
-                validator.plot_results(eval_results, plot_type="final", save_path=str(exp["results_dir"]))
-            except Exception:
-                pass
-            
-            print("Evaluation complete.")
-        except Exception as e:
-            print(f"Evaluation failed: {e}")
+                eval_results = validator.evaluate(model, data_obj)
+                import json
+                (exp["results_dir"] / "final_evaluation.json").write_text(json.dumps(eval_results, indent=2))
+                
+                try:
+                    validator.plot_results(eval_results, plot_type="final", save_path=str(exp["results_dir"]))
+                except Exception:
+                    pass
+                
+                print("Evaluation complete.")
+            except Exception as e:
+                print(f"Evaluation failed: {e}")
 
     print(f"Pipeline complete. Artifacts: {exp['root']}")
     return 0
@@ -143,9 +158,9 @@ def parse_args():
     p = argparse.ArgumentParser(description="Pipeline runner")
     p.add_argument("--config", type=str, default=None)
     p.add_argument("--dataloader", type=str, default=None)
-    p.add_argument("--cv-enhancer", dest="cv_enhancer", type=str, default=None)
-    p.add_argument("--trainer", type=str, default=None)
-    p.add_argument("--validator", type=str, default=None)
+    p.add_argument("--cv-enhancer", dest="cv_enhancer", type=str, default=None, help="Dotted path to CVEnhancer class")
+    p.add_argument("--trainer", type=str, default=None, help="Dotted path to Trainer class")
+    p.add_argument("--validator", type=str, default=None, help="Dotted path to Validator class")
     p.add_argument("--steps", type=str, default=None, help="Comma-separated: prepare,train,evaluate")
     p.add_argument("--exp-name", default=None)
     p.add_argument("--epochs", type=int, default=None)

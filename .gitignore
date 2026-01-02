@@ -43,3 +43,8 @@ experiments/
 # Misc
 *.log
 *.sqlite
+
+# Ignore dataset files
+data/raw/
+data/processed/
+data/augmented/

@@ -10,14 +10,18 @@ data:
   processed_dir: "data/processed"
   augmented_dir: "data/augmented"
   splits_dir: "data/splits"
+  # Default dataset name (optional). If present, tools may look for
+  # <raw_dir>/<dataset_name>/metadata.json
+  dataset_name: "van_gogh_dataset"
 
 # CV Enhancement
 cv_enhancement:
   preprocessing:
-    resize: [224, 224]          # -> CVEnhancementAPI.preprocess(..., resize=(W,H))
     normalize: true             # -> CVEnhancementAPI.preprocess(..., normalize=True)
   augmentation:
-    enabled: true               # -> CVEnhancementAPI.augment(..., enabled=True)
+    enabled: false               # -> CVEnhancementAPI.augment(..., enabled=True)
+  filtering:
+    enabled: true              # -> CVEnhancementAPI.apply_filter(..., enabled=True/False)
   filters: []                  # -> list of filter names used by CVEnhancementAPI.apply_filter
 
 # Training
@@ -50,7 +54,15 @@ experiments:
 
 # Pipeline
 pipeline:
-  dataloader: null            # dotted path to DataLoader (e.g. mypkg.data.MyLoader)
+
+  dataloader: "data.dataloader:DataLoader"    # dotted path to DataLoader
+  dataloader_config:
+    # If provided, the loader will look under <data.raw_dir>/<dataset_name>
+    dataset_name: "van_gogh_dataset"
+    metadata_file: "metadata.json"
+    # Strategy for handling class imbalance: null | "oversample" | "class_weights"
+    balance_strategy: "class_weights"
+    stratify_splits: true
   cv_enhancer: null           # dotted path to CVEnhancer (e.g. mypkg.cv.CVEnhancer)
   trainer: null               # dotted path to Trainer (e.g. mypkg.trainers.MyTrainer)
   validator: null             # dotted path to Validator (e.g. mypkg.validation.MyValidator)

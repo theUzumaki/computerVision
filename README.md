@@ -39,7 +39,7 @@ Implement `DataLoader` interface in [data/dataloader.py](data/dataloader.py):
 
 Implement `CVEnhancementAPI` in [cv_enhancement/api/interface.py](cv_enhancement/api/interface.py):
 
-- `preprocess(image, **kwargs)` — resize, normalize, etc.
+- `preprocess(dataset, **kwargs)` — dataset-level preprocessing; accepts a `DataFrame` or `list[dict]` with `file_path` and **adds** an `image` field containing processed arrays (no resizing is performed)
 - `augment(image, **kwargs)` — apply data augmentation
 - `apply_filter(image, filter_name, **kwargs)` — apply image filters
 

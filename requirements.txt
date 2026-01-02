@@ -3,6 +3,9 @@ PyYAML>=6.0
 numpy>=1.24
 matplotlib>=3.6
 tqdm>=4.65
+kagglehub>=0.1
+pandas>=1.5
+scikit-image>=0.19
 # Optional / common deep learning libs (uncomment if used)
 # torch>=1.13
 # torchvision>=0.14
